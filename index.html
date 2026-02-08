@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BuildingTwin - Digital Infrastructure Platform</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(60px, 60px); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-10px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.4s ease-out forwards;
+        }
+        
+        .hover-lift {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(74, 158, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { Eye, EyeOff, FileText, Clock, Wrench, Download, Plus, ChevronRight, Layers, Home, AlertCircle } = lucide;
+
+        const BuildingTwinApp = () => {
+            const sdkKey = 'sd5i4pbicc4c7iqmi8sqbcieb';
+            const [viewMode, setViewMode] = useState('completed');
+            const [selectedAsset, setSelectedAsset] = useState(null);
+            const [notes, setNotes] = useState([
+                { id: 1, date: '2024-12-15', user: 'John Martinez', content: 'Replaced HVAC filter in basement unit', category: 'HVAC' },
+                { id: 2, date: '2024-11-03', user: 'Sarah Chen', content: 'Cold call from tenant - Room 0.1. Adjusted thermostat settings', category: 'HVAC' },
+                { id: 3, date: '2024-10-20', user: 'Mike Thompson', content: 'LED bulbs replaced in common hallway', category: 'Lighting' }
+            ]);
+            const [showAddNote, setShowAddNote] = useState(false);
+            const [newNote, setNewNote] = useState('');
+            const [iframeLoading, setIframeLoading] = useState(true);
+
+            const assets = [
+                {
+                    id: 1,
+                    name: 'Marvin Elevate Windows',
+                    category: 'Windows & Doors',
+                    location: 'Basement - Room 0.1',
+                    specs: 'Double-Hung, Low-E Glass',
+                    manual: 'https://www.marvin.com/f/1019562/x/6ae27f6e31/marvin-elevate-collection_elevations_double-hung.pdf',
+                    lastService: '2024-08-15',
+                    warranty: 'Valid until 2034'
+                },
+                {
+                    id: 2,
+                    name: 'Philips LuxSpace Recessed',
+                    category: 'Lighting',
+                    location: 'Basement - Room 0.1',
+                    specs: 'LED, 3000K, Dimmable',
+                    manual: 'https://www.lighting.philips.com/api/assets/v1/file/Signify/content/LP_CF_DN610B_EU.en_AA.PROF.CF/Localized_commercial_leaflet_LuxSpace_Compact__recessed_en_AA.pdf',
+                    lastService: '2024-10-20',
+                    warranty: '5-year manufacturer warranty'
+                },
+                {
+                    id: 3,
+                    name: 'White Oak Wide Plank',
+                    category: 'Flooring',
+                    location: 'Basement - Room 0.1',
+                    specs: 'Random Width, Natural Finish',
+                    manual: 'https://wideplankflooring.com/wp-content/uploads/2025/10/Spec-Sheet-for-RQ-White-Oak-1.pdf',
+                    lastService: 'N/A',
+                    warranty: 'N/A'
+                },
+                {
+                    id: 4,
+                    name: 'Sub-Zero Refrigerator',
+                    category: 'Appliances',
+                    location: 'Basement - Room 0.1',
+                    specs: 'Classic Series, Built-in',
+                    manual: 'https://www.subzero-wolf.com/-/media/files/united-states/product-downloads/sub-zero-wolf/use-and-care/sub-zero/classic_ucg.ashx',
+                    lastService: '2024-09-12',
+                    warranty: 'Valid until 2027'
+                }
+            ];
+
+            const toggleView = () => {
+                setIframeLoading(true);
+                setViewMode(viewMode === 'completed' ? 'xray' : 'completed');
+            };
+
+            const handleAddNote = () => {
+                if (newNote.trim()) {
+                    const note = {
+                        id: notes.length + 1,
+                        date: new Date().toISOString().split('T')[0],
+                        user: 'Current User',
+                        content: newNote,
+                        category: 'General'
+                    };
+                    setNotes([note, ...notes]);
+                    setNewNote('');
+                    setShowAddNote(false);
+                }
+            };
+
+            const handleIframeLoad = () => {
+                setIframeLoading(false);
+            };
+
+            useEffect(() => {
+                const timer = setTimeout(() => {
+                    setIframeLoading(false);
+                }, 4000);
+                return () => clearTimeout(timer);
+            }, [viewMode]);
+
+            return (
+                <div style={{
+                    minHeight: '100vh',
+                    background: 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2a2f4a 100%)',
+                    color: '#e8edf4'
+                }}>
+                    {/* Background grid */}
+                    <div style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        opacity: 0.03,
+                        backgroundImage: `
+                            repeating-linear-gradient(0deg, transparent, transparent 2px, #4a9eff 2px, #4a9eff 4px),
+                            repeating-linear-gradient(90deg, transparent, transparent 2px, #4a9eff 2px, #4a9eff 4px)
+                        `,
+                        backgroundSize: '60px 60px',
+                        pointerEvents: 'none',
+                        animation: 'gridMove 20s linear infinite'
+                    }} />
+
+                    {/* Header */}
+                    <header style={{
+                        background: 'rgba(10, 14, 39, 0.9)',
+                        backdropFilter: 'blur(20px)',
+                        borderBottom: '1px solid rgba(74, 158, 255, 0.1)',
+                        padding: '1.25rem 2rem',
+                        position: 'sticky',
+                        top: 0,
+                        zIndex: 100,
+                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+                    }}>
+                        <div style={{
+                            background: 'linear-gradient(90deg, rgba(74, 158, 255, 0.1) 0%, rgba(74, 158, 255, 0.05) 100%)',
+                            border: '1px solid rgba(74, 158, 255, 0.3)',
+                            borderRadius: '8px',
+                            padding: '0.75rem 1rem',
+                            marginBottom: '1rem',
+                            textAlign: 'center',
+                            fontSize: '0.875rem',
+                            color: '#4a9eff'
+                        }}>
+                            <strong>PROTOTYPE DEMO</strong> · Showcasing BuildingTwin concept with South Boston 4-Unit Residential Building
+                        </div>
+                        
+                        <div style={{
+                            maxWidth: '1400px',
+                            margin: '0 auto',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{
+                                    width: '48px',
+                                    height: '48px',
+                                    background: 'linear-gradient(135deg, #4a9eff 0%, #357abd 100%)',
+                                    borderRadius: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    boxShadow: '0 4px 12px rgba(74, 158, 255, 0.3)'
+                                }}>
+                                    <Layers size={24} color="#fff" />
+                                </div>
+                                <div>
+                                    <h1 style={{
+                                        margin: 0,
+                                        fontSize: '1.5rem',
+                                        fontWeight: 700,
+                                        letterSpacing: '-0.02em',
+                                        background: 'linear-gradient(135deg, #fff 0%, #4a9eff 100%)',
+                                        WebkitBackgroundClip: 'text',
+                                        WebkitTextFillColor: 'transparent',
+                                        backgroundClip: 'text'
+                                    }}>
+                                        BuildingTwin
+                                    </h1>
+                                    <p style={{
+                                        margin: 0,
+                                        fontSize: '0.75rem',
+                                        color: '#8b9bb8',
+                                        fontFamily: '"Space Mono", monospace',
+                                        letterSpacing: '0.05em'
+                                    }}>
+                                        DIGITAL INFRASTRUCTURE PLATFORM
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.75rem',
+                                padding: '0.5rem 1rem',
+                                background: 'rgba(74, 158, 255, 0.05)',
+                                borderRadius: '12px',
+                                border: '1px solid rgba(74, 158, 255, 0.2)'
+                            }}>
+                                <Home size={16} color="#4a9eff" />
+                                <span style={{ fontSize: '0.875rem', color: '#8b9bb8' }}>South Boston 4-Unit Residential</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '2rem' }}>
+                            
+                            {/* Main Viewer */}
+                            <div>
+                                <div style={{
+                                    background: 'rgba(26, 31, 58, 0.5)',
+                                    borderRadius: '16px',
+                                    padding: '1.5rem',
+                                    border: '1px solid rgba(74, 158, 255, 0.15)',
+                                    backdropFilter: 'blur(10px)',
+                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                                }}>
+                                    {/* View Controls */}
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        marginBottom: '1.5rem'
+                                    }}>
+                                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flex: 1 }}>
+                                            <div 
+                                                style={{
+                                                    background: viewMode === 'completed' ? 'rgba(74, 158, 255, 0.15)' : 'transparent',
+                                                    border: `2px solid ${viewMode === 'completed' ? '#4a9eff' : 'rgba(139, 155, 184, 0.3)'}`,
+                                                    borderRadius: '8px',
+                                                    padding: '0.5rem 1rem',
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 600,
+                                                    color: viewMode === 'completed' ? '#4a9eff' : '#8b9bb8',
+                                                    cursor: 'pointer'
+                                                }}
+                                                className="hover-lift"
+                                                onClick={() => setViewMode('completed')}
+                                            >
+                                                Completed View
+                                            </div>
+                                            <div 
+                                                style={{
+                                                    background: viewMode === 'xray' ? 'rgba(255, 107, 107, 0.15)' : 'transparent',
+                                                    border: `2px solid ${viewMode === 'xray' ? '#ff6b6b' : 'rgba(139, 155, 184, 0.3)'}`,
+                                                    borderRadius: '8px',
+                                                    padding: '0.5rem 1rem',
+                                                    fontSize: '0.875rem',
+                                                    fontWeight: 600,
+                                                    color: viewMode === 'xray' ? '#ff6b6b' : '#8b9bb8',
+                                                    cursor: 'pointer'
+                                                }}
+                                                className="hover-lift"
+                                                onClick={() => setViewMode('xray')}
+                                            >
+                                                X-Ray View
+                                            </div>
+                                            <div style={{
+                                                marginLeft: '0.5rem',
+                                                padding: '0.5rem',
+                                                background: 'rgba(74, 158, 255, 0.1)',
+                                                borderRadius: '6px',
+                                                fontSize: '0.75rem',
+                                                color: '#8b9bb8',
+                                                fontStyle: 'italic'
+                                            }}>
+                                                Toggle between views to see through walls
+                                            </div>
+                                        </div>
+                                        
+                                        <button
+                                            onClick={toggleView}
+                                            style={{
+                                                background: 'linear-gradient(135deg, #4a9eff 0%, #357abd 100%)',
+                                                border: 'none',
+                                                borderRadius: '10px',
+                                                padding: '0.75rem 1.5rem',
+                                                color: '#fff',
+                                                fontSize: '0.875rem',
+                                                fontWeight: 600,
+                                                cursor: 'pointer',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '0.5rem',
+                                                boxShadow: '0 4px 12px rgba(74, 158, 255, 0.3)'
+                                            }}
+                                            className="hover-lift"
+                                        >
+                                            {viewMode === 'completed' ? <Eye size={18} /> : <EyeOff size={18} />}
+                                            Toggle View
+                                        </button>
+                                    </div>
+
+                                    {/* 3D Viewer */}
+                                    <div style={{
+                                        position: 'relative',
+                                        width: '100%',
+                                        height: '600px',
+                                        borderRadius: '12px',
+                                        overflow: 'hidden',
+                                        border: `2px solid ${viewMode === 'xray' ? 'rgba(255, 107, 107, 0.3)' : 'rgba(74, 158, 255, 0.3)'}`,
+                                        boxShadow: `0 0 30px ${viewMode === 'xray' ? 'rgba(255, 107, 107, 0.2)' : 'rgba(74, 158, 255, 0.2)'}`,
+                                        transition: 'all 0.5s ease'
+                                    }}>
+                                        {iframeLoading && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                background: 'rgba(10, 14, 39, 0.95)',
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                zIndex: 10,
+                                                gap: '1rem'
+                                            }}>
+                                                <div style={{
+                                                    width: '50px',
+                                                    height: '50px',
+                                                    border: '3px solid rgba(74, 158, 255, 0.3)',
+                                                    borderTop: '3px solid #4a9eff',
+                                                    borderRadius: '50%',
+                                                    animation: 'spin 1s linear infinite'
+                                                }} />
+                                                <div style={{ color: '#8b9bb8', fontSize: '0.875rem' }}>
+                                                    Loading 3D Model...
+                                                </div>
+                                            </div>
+                                        )}
+                                        <iframe
+                                            key={viewMode}
+                                            src={viewMode === 'completed'
+                                                ? `https://my.matterport.com/show/?m=Df3Qr43FHgi&brand=0&dh=0&gt=0&hr=0&mls=2&applicationKey=${sdkKey}`
+                                                : `https://my.matterport.com/show/?m=iCQ998wf5ui&brand=0&dh=0&gt=0&hr=0&mls=2&applicationKey=${sdkKey}`
+                                            }
+                                            width="100%"
+                                            height="100%"
+                                            frameBorder="0"
+                                            style={{ width: '100%', height: '100%', border: 'none' }}
+                                            allowFullScreen
+                                            allow="autoplay; fullscreen; web-share; xr-spatial-tracking"
+                                            onLoad={handleIframeLoad}
+                                        />
+                                        
+                                        {/* View indicator */}
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '1rem',
+                                            left: '1rem',
+                                            background: viewMode === 'xray' ? 'rgba(255, 107, 107, 0.9)' : 'rgba(74, 158, 255, 0.9)',
+                                            backdropFilter: 'blur(10px)',
+                                            padding: '0.5rem 1rem',
+                                            borderRadius: '8px',
+                                            fontSize: '0.75rem',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.05em',
+                                            textTransform: 'uppercase',
+                                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.5rem'
+                                        }}>
+                                            {viewMode === 'xray' && <AlertCircle size={14} />}
+                                            {viewMode === 'completed' ? 'Completed Building' : 'Infrastructure X-Ray'}
+                                        </div>
+                                    </div>
+
+                                    {/* Location Info */}
+                                    <div style={{
+                                        marginTop: '1.5rem',
+                                        padding: '1rem',
+                                        background: 'rgba(74, 158, 255, 0.05)',
+                                        borderRadius: '10px',
+                                        border: '1px solid rgba(74, 158, 255, 0.1)',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center'
+                                    }}>
+                                        <div>
+                                            <div style={{ fontSize: '0.75rem', color: '#8b9bb8', marginBottom: '0.25rem' }}>CURRENT LOCATION</div>
+                                            <div style={{ fontSize: '1rem', fontWeight: 600, color: '#e8edf4' }}>Basement - Room 0.1</div>
+                                        </div>
+                                        <div style={{
+                                            background: 'rgba(74, 158, 255, 0.1)',
+                                            padding: '0.5rem 1rem',
+                                            borderRadius: '6px',
+                                            fontSize: '0.75rem',
+                                            color: '#4a9eff',
+                                            fontFamily: '"Space Mono", monospace'
+                                        }}>
+                                            Synced Position
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Sidebar - simplified for this example */}
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                <div style={{
+                                    background: 'rgba(26, 31, 58, 0.5)',
+                                    borderRadius: '16px',
+                                    padding: '1.5rem',
+                                    border: '1px solid rgba(74, 158, 255, 0.15)',
+                                    backdropFilter: 'blur(10px)',
+                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                                }}>
+                                    <h2 style={{
+                                        margin: '0 0 1rem 0',
+                                        fontSize: '1.125rem',
+                                        fontWeight: 700,
+                                        color: '#e8edf4',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem'
+                                    }}>
+                                        <FileText size={20} color="#4a9eff" />
+                                        Location Assets
+                                    </h2>
+                                    <p style={{ color: '#8b9bb8', fontSize: '0.875rem' }}>
+                                        Asset information and maintenance logs would appear here in the full version.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<BuildingTwinApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
