@@ -4,487 +4,562 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BuildingTwin - Digital Infrastructure Platform</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
-        
-        body {
+        * {
             margin: 0;
             padding: 0;
-            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            box-sizing: border-box;
         }
-        
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2a2f4a 100%);
+            color: #e8edf4;
+            min-height: 100vh;
+        }
+
+        /* Animated background grid */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.03;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, #4a9eff 2px, #4a9eff 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, #4a9eff 2px, #4a9eff 4px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            animation: gridMove 20s linear infinite;
+        }
+
         @keyframes gridMove {
             0% { transform: translate(0, 0); }
             100% { transform: translate(60px, 60px); }
         }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        
-        @keyframes slideIn {
-            from { transform: translateX(-10px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        
+
         .fade-in-up {
             animation: fadeInUp 0.6s ease-out forwards;
         }
-        
-        .slide-in {
-            animation: slideIn 0.4s ease-out forwards;
-        }
-        
+
         .hover-lift {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .hover-lift:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(74, 158, 255, 0.2);
         }
+
+        /* Header */
+        header {
+            background: rgba(10, 14, 39, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(74, 158, 255, 0.1);
+            padding: 1.25rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-notice {
+            background: linear-gradient(90deg, rgba(74, 158, 255, 0.1) 0%, rgba(74, 158, 255, 0.05) 100%);
+            border: 1px solid rgba(74, 158, 255, 0.3);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-size: 0.875rem;
+            color: #4a9eff;
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #4a9eff 0%, #357abd 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+            font-size: 24px;
+        }
+
+        .logo-text h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 0%, #4a9eff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-text p {
+            margin: 0;
+            font-size: 0.75rem;
+            color: #8b9bb8;
+            font-family: 'Space Mono', monospace;
+            letter-spacing: 0.05em;
+        }
+
+        .building-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: rgba(74, 158, 255, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(74, 158, 255, 0.2);
+            font-size: 0.875rem;
+            color: #8b9bb8;
+        }
+
+        /* Main content */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        .card {
+            background: rgba(26, 31, 58, 0.5);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid rgba(74, 158, 255, 0.15);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        /* View controls */
+        .view-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .view-buttons {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+            flex: 1;
+        }
+
+        .view-btn {
+            background: transparent;
+            border: 2px solid rgba(139, 155, 184, 0.3);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #8b9bb8;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background: rgba(74, 158, 255, 0.15);
+            border-color: #4a9eff;
+            color: #4a9eff;
+        }
+
+        .view-btn.xray.active {
+            background: rgba(255, 107, 107, 0.15);
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .view-hint {
+            margin-left: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(74, 158, 255, 0.1);
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #8b9bb8;
+            font-style: italic;
+        }
+
+        .toggle-btn {
+            background: linear-gradient(135deg, #4a9eff 0%, #357abd 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(74, 158, 255, 0.3);
+        }
+
+        /* 3D Viewer */
+        .viewer-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(74, 158, 255, 0.3);
+            box-shadow: 0 0 30px rgba(74, 158, 255, 0.2);
+            transition: all 0.5s ease;
+        }
+
+        .viewer-container.xray {
+            border-color: rgba(255, 107, 107, 0.3);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.2);
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 39, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            gap: 1rem;
+        }
+
+        .loading-overlay.hidden {
+            display: none;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(74, 158, 255, 0.3);
+            border-top: 3px solid #4a9eff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .matterport-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .view-indicator {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: rgba(74, 158, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .view-indicator.xray {
+            background: rgba(255, 107, 107, 0.9);
+        }
+
+        /* Location info */
+        .location-info {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(74, 158, 255, 0.05);
+            border-radius: 10px;
+            border: 1px solid rgba(74, 158, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .location-label {
+            font-size: 0.75rem;
+            color: #8b9bb8;
+            margin-bottom: 0.25rem;
+        }
+
+        .location-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #e8edf4;
+        }
+
+        .sync-badge {
+            background: rgba(74, 158, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            color: #4a9eff;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .section-title {
+            margin: 0 0 1rem 0;
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #e8edf4;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-text {
+            color: #8b9bb8;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="bg-grid"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { Eye, EyeOff, FileText, Clock, Wrench, Download, Plus, ChevronRight, Layers, Home, AlertCircle } = lucide;
+    <header class="fade-in-up">
+        <div class="demo-notice">
+            <strong>PROTOTYPE DEMO</strong> · Showcasing BuildingTwin concept with South Boston 4-Unit Residential Building
+        </div>
+        
+        <div class="header-content">
+            <div class="logo-section">
+                <div class="logo-icon">🏢</div>
+                <div class="logo-text">
+                    <h1>BuildingTwin</h1>
+                    <p>DIGITAL INFRASTRUCTURE PLATFORM</p>
+                </div>
+            </div>
+            
+            <div class="building-info">
+                🏠 South Boston 4-Unit Residential
+            </div>
+        </div>
+    </header>
 
-        const BuildingTwinApp = () => {
-            const sdkKey = 'sd5i4pbicc4c7iqmi8sqbcieb';
-            const [viewMode, setViewMode] = useState('completed');
-            const [selectedAsset, setSelectedAsset] = useState(null);
-            const [notes, setNotes] = useState([
-                { id: 1, date: '2024-12-15', user: 'John Martinez', content: 'Replaced HVAC filter in basement unit', category: 'HVAC' },
-                { id: 2, date: '2024-11-03', user: 'Sarah Chen', content: 'Cold call from tenant - Room 0.1. Adjusted thermostat settings', category: 'HVAC' },
-                { id: 3, date: '2024-10-20', user: 'Mike Thompson', content: 'LED bulbs replaced in common hallway', category: 'Lighting' }
-            ]);
-            const [showAddNote, setShowAddNote] = useState(false);
-            const [newNote, setNewNote] = useState('');
-            const [iframeLoading, setIframeLoading] = useState(true);
-
-            const assets = [
-                {
-                    id: 1,
-                    name: 'Marvin Elevate Windows',
-                    category: 'Windows & Doors',
-                    location: 'Basement - Room 0.1',
-                    specs: 'Double-Hung, Low-E Glass',
-                    manual: 'https://www.marvin.com/f/1019562/x/6ae27f6e31/marvin-elevate-collection_elevations_double-hung.pdf',
-                    lastService: '2024-08-15',
-                    warranty: 'Valid until 2034'
-                },
-                {
-                    id: 2,
-                    name: 'Philips LuxSpace Recessed',
-                    category: 'Lighting',
-                    location: 'Basement - Room 0.1',
-                    specs: 'LED, 3000K, Dimmable',
-                    manual: 'https://www.lighting.philips.com/api/assets/v1/file/Signify/content/LP_CF_DN610B_EU.en_AA.PROF.CF/Localized_commercial_leaflet_LuxSpace_Compact__recessed_en_AA.pdf',
-                    lastService: '2024-10-20',
-                    warranty: '5-year manufacturer warranty'
-                },
-                {
-                    id: 3,
-                    name: 'White Oak Wide Plank',
-                    category: 'Flooring',
-                    location: 'Basement - Room 0.1',
-                    specs: 'Random Width, Natural Finish',
-                    manual: 'https://wideplankflooring.com/wp-content/uploads/2025/10/Spec-Sheet-for-RQ-White-Oak-1.pdf',
-                    lastService: 'N/A',
-                    warranty: 'N/A'
-                },
-                {
-                    id: 4,
-                    name: 'Sub-Zero Refrigerator',
-                    category: 'Appliances',
-                    location: 'Basement - Room 0.1',
-                    specs: 'Classic Series, Built-in',
-                    manual: 'https://www.subzero-wolf.com/-/media/files/united-states/product-downloads/sub-zero-wolf/use-and-care/sub-zero/classic_ucg.ashx',
-                    lastService: '2024-09-12',
-                    warranty: 'Valid until 2027'
-                }
-            ];
-
-            const toggleView = () => {
-                setIframeLoading(true);
-                setViewMode(viewMode === 'completed' ? 'xray' : 'completed');
-            };
-
-            const handleAddNote = () => {
-                if (newNote.trim()) {
-                    const note = {
-                        id: notes.length + 1,
-                        date: new Date().toISOString().split('T')[0],
-                        user: 'Current User',
-                        content: newNote,
-                        category: 'General'
-                    };
-                    setNotes([note, ...notes]);
-                    setNewNote('');
-                    setShowAddNote(false);
-                }
-            };
-
-            const handleIframeLoad = () => {
-                setIframeLoading(false);
-            };
-
-            useEffect(() => {
-                const timer = setTimeout(() => {
-                    setIframeLoading(false);
-                }, 4000);
-                return () => clearTimeout(timer);
-            }, [viewMode]);
-
-            return (
-                <div style={{
-                    minHeight: '100vh',
-                    background: 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 50%, #2a2f4a 100%)',
-                    color: '#e8edf4'
-                }}>
-                    {/* Background grid */}
-                    <div style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        opacity: 0.03,
-                        backgroundImage: `
-                            repeating-linear-gradient(0deg, transparent, transparent 2px, #4a9eff 2px, #4a9eff 4px),
-                            repeating-linear-gradient(90deg, transparent, transparent 2px, #4a9eff 2px, #4a9eff 4px)
-                        `,
-                        backgroundSize: '60px 60px',
-                        pointerEvents: 'none',
-                        animation: 'gridMove 20s linear infinite'
-                    }} />
-
-                    {/* Header */}
-                    <header style={{
-                        background: 'rgba(10, 14, 39, 0.9)',
-                        backdropFilter: 'blur(20px)',
-                        borderBottom: '1px solid rgba(74, 158, 255, 0.1)',
-                        padding: '1.25rem 2rem',
-                        position: 'sticky',
-                        top: 0,
-                        zIndex: 100,
-                        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
-                    }}>
-                        <div style={{
-                            background: 'linear-gradient(90deg, rgba(74, 158, 255, 0.1) 0%, rgba(74, 158, 255, 0.05) 100%)',
-                            border: '1px solid rgba(74, 158, 255, 0.3)',
-                            borderRadius: '8px',
-                            padding: '0.75rem 1rem',
-                            marginBottom: '1rem',
-                            textAlign: 'center',
-                            fontSize: '0.875rem',
-                            color: '#4a9eff'
-                        }}>
-                            <strong>PROTOTYPE DEMO</strong> · Showcasing BuildingTwin concept with South Boston 4-Unit Residential Building
+    <div class="container">
+        <div class="layout">
+            <!-- Main Viewer -->
+            <div class="fade-in-up">
+                <div class="card">
+                    <!-- View Controls -->
+                    <div class="view-controls">
+                        <div class="view-buttons">
+                            <button class="view-btn active hover-lift" id="completedBtn">
+                                Completed View
+                            </button>
+                            <button class="view-btn xray hover-lift" id="xrayBtn">
+                                X-Ray View
+                            </button>
+                            <div class="view-hint">
+                                Toggle between views to see through walls
+                            </div>
                         </div>
                         
-                        <div style={{
-                            maxWidth: '1400px',
-                            margin: '0 auto',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                <div style={{
-                                    width: '48px',
-                                    height: '48px',
-                                    background: 'linear-gradient(135deg, #4a9eff 0%, #357abd 100%)',
-                                    borderRadius: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    boxShadow: '0 4px 12px rgba(74, 158, 255, 0.3)'
-                                }}>
-                                    <Layers size={24} color="#fff" />
-                                </div>
-                                <div>
-                                    <h1 style={{
-                                        margin: 0,
-                                        fontSize: '1.5rem',
-                                        fontWeight: 700,
-                                        letterSpacing: '-0.02em',
-                                        background: 'linear-gradient(135deg, #fff 0%, #4a9eff 100%)',
-                                        WebkitBackgroundClip: 'text',
-                                        WebkitTextFillColor: 'transparent',
-                                        backgroundClip: 'text'
-                                    }}>
-                                        BuildingTwin
-                                    </h1>
-                                    <p style={{
-                                        margin: 0,
-                                        fontSize: '0.75rem',
-                                        color: '#8b9bb8',
-                                        fontFamily: '"Space Mono", monospace',
-                                        letterSpacing: '0.05em'
-                                    }}>
-                                        DIGITAL INFRASTRUCTURE PLATFORM
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.75rem',
-                                padding: '0.5rem 1rem',
-                                background: 'rgba(74, 158, 255, 0.05)',
-                                borderRadius: '12px',
-                                border: '1px solid rgba(74, 158, 255, 0.2)'
-                            }}>
-                                <Home size={16} color="#4a9eff" />
-                                <span style={{ fontSize: '0.875rem', color: '#8b9bb8' }}>South Boston 4-Unit Residential</span>
+                        <button class="toggle-btn hover-lift" id="toggleBtn">
+                            👁️ Toggle View
+                        </button>
+                    </div>
+
+                    <!-- 3D Viewer -->
+                    <div class="viewer-container" id="viewerContainer">
+                        <div class="loading-overlay" id="loadingOverlay">
+                            <div class="spinner"></div>
+                            <div style="color: #8b9bb8; font-size: 0.875rem;">
+                                Loading 3D Model...
                             </div>
                         </div>
-                    </header>
+                        
+                        <iframe 
+                            class="matterport-iframe" 
+                            id="matterportIframe"
+                            src="https://my.matterport.com/show/?m=Df3Qr43FHgi&brand=0&dh=0&gt=0&hr=0&mls=2&applicationKey=sd5i4pbicc4c7iqmi8sqbcieb"
+                            allowfullscreen
+                            allow="autoplay; fullscreen; web-share; xr-spatial-tracking"
+                        ></iframe>
+                        
+                        <div class="view-indicator" id="viewIndicator">
+                            Completed Building
+                        </div>
+                    </div>
 
-                    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '2rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '2rem' }}>
-                            
-                            {/* Main Viewer */}
-                            <div>
-                                <div style={{
-                                    background: 'rgba(26, 31, 58, 0.5)',
-                                    borderRadius: '16px',
-                                    padding: '1.5rem',
-                                    border: '1px solid rgba(74, 158, 255, 0.15)',
-                                    backdropFilter: 'blur(10px)',
-                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-                                }}>
-                                    {/* View Controls */}
-                                    <div style={{
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center',
-                                        marginBottom: '1.5rem'
-                                    }}>
-                                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flex: 1 }}>
-                                            <div 
-                                                style={{
-                                                    background: viewMode === 'completed' ? 'rgba(74, 158, 255, 0.15)' : 'transparent',
-                                                    border: `2px solid ${viewMode === 'completed' ? '#4a9eff' : 'rgba(139, 155, 184, 0.3)'}`,
-                                                    borderRadius: '8px',
-                                                    padding: '0.5rem 1rem',
-                                                    fontSize: '0.875rem',
-                                                    fontWeight: 600,
-                                                    color: viewMode === 'completed' ? '#4a9eff' : '#8b9bb8',
-                                                    cursor: 'pointer'
-                                                }}
-                                                className="hover-lift"
-                                                onClick={() => setViewMode('completed')}
-                                            >
-                                                Completed View
-                                            </div>
-                                            <div 
-                                                style={{
-                                                    background: viewMode === 'xray' ? 'rgba(255, 107, 107, 0.15)' : 'transparent',
-                                                    border: `2px solid ${viewMode === 'xray' ? '#ff6b6b' : 'rgba(139, 155, 184, 0.3)'}`,
-                                                    borderRadius: '8px',
-                                                    padding: '0.5rem 1rem',
-                                                    fontSize: '0.875rem',
-                                                    fontWeight: 600,
-                                                    color: viewMode === 'xray' ? '#ff6b6b' : '#8b9bb8',
-                                                    cursor: 'pointer'
-                                                }}
-                                                className="hover-lift"
-                                                onClick={() => setViewMode('xray')}
-                                            >
-                                                X-Ray View
-                                            </div>
-                                            <div style={{
-                                                marginLeft: '0.5rem',
-                                                padding: '0.5rem',
-                                                background: 'rgba(74, 158, 255, 0.1)',
-                                                borderRadius: '6px',
-                                                fontSize: '0.75rem',
-                                                color: '#8b9bb8',
-                                                fontStyle: 'italic'
-                                            }}>
-                                                Toggle between views to see through walls
-                                            </div>
-                                        </div>
-                                        
-                                        <button
-                                            onClick={toggleView}
-                                            style={{
-                                                background: 'linear-gradient(135deg, #4a9eff 0%, #357abd 100%)',
-                                                border: 'none',
-                                                borderRadius: '10px',
-                                                padding: '0.75rem 1.5rem',
-                                                color: '#fff',
-                                                fontSize: '0.875rem',
-                                                fontWeight: 600,
-                                                cursor: 'pointer',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                gap: '0.5rem',
-                                                boxShadow: '0 4px 12px rgba(74, 158, 255, 0.3)'
-                                            }}
-                                            className="hover-lift"
-                                        >
-                                            {viewMode === 'completed' ? <Eye size={18} /> : <EyeOff size={18} />}
-                                            Toggle View
-                                        </button>
-                                    </div>
-
-                                    {/* 3D Viewer */}
-                                    <div style={{
-                                        position: 'relative',
-                                        width: '100%',
-                                        height: '600px',
-                                        borderRadius: '12px',
-                                        overflow: 'hidden',
-                                        border: `2px solid ${viewMode === 'xray' ? 'rgba(255, 107, 107, 0.3)' : 'rgba(74, 158, 255, 0.3)'}`,
-                                        boxShadow: `0 0 30px ${viewMode === 'xray' ? 'rgba(255, 107, 107, 0.2)' : 'rgba(74, 158, 255, 0.2)'}`,
-                                        transition: 'all 0.5s ease'
-                                    }}>
-                                        {iframeLoading && (
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                                background: 'rgba(10, 14, 39, 0.95)',
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                zIndex: 10,
-                                                gap: '1rem'
-                                            }}>
-                                                <div style={{
-                                                    width: '50px',
-                                                    height: '50px',
-                                                    border: '3px solid rgba(74, 158, 255, 0.3)',
-                                                    borderTop: '3px solid #4a9eff',
-                                                    borderRadius: '50%',
-                                                    animation: 'spin 1s linear infinite'
-                                                }} />
-                                                <div style={{ color: '#8b9bb8', fontSize: '0.875rem' }}>
-                                                    Loading 3D Model...
-                                                </div>
-                                            </div>
-                                        )}
-                                        <iframe
-                                            key={viewMode}
-                                            src={viewMode === 'completed'
-                                                ? `https://my.matterport.com/show/?m=Df3Qr43FHgi&brand=0&dh=0&gt=0&hr=0&mls=2&applicationKey=${sdkKey}`
-                                                : `https://my.matterport.com/show/?m=iCQ998wf5ui&brand=0&dh=0&gt=0&hr=0&mls=2&applicationKey=${sdkKey}`
-                                            }
-                                            width="100%"
-                                            height="100%"
-                                            frameBorder="0"
-                                            style={{ width: '100%', height: '100%', border: 'none' }}
-                                            allowFullScreen
-                                            allow="autoplay; fullscreen; web-share; xr-spatial-tracking"
-                                            onLoad={handleIframeLoad}
-                                        />
-                                        
-                                        {/* View indicator */}
-                                        <div style={{
-                                            position: 'absolute',
-                                            top: '1rem',
-                                            left: '1rem',
-                                            background: viewMode === 'xray' ? 'rgba(255, 107, 107, 0.9)' : 'rgba(74, 158, 255, 0.9)',
-                                            backdropFilter: 'blur(10px)',
-                                            padding: '0.5rem 1rem',
-                                            borderRadius: '8px',
-                                            fontSize: '0.75rem',
-                                            fontWeight: 700,
-                                            letterSpacing: '0.05em',
-                                            textTransform: 'uppercase',
-                                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '0.5rem'
-                                        }}>
-                                            {viewMode === 'xray' && <AlertCircle size={14} />}
-                                            {viewMode === 'completed' ? 'Completed Building' : 'Infrastructure X-Ray'}
-                                        </div>
-                                    </div>
-
-                                    {/* Location Info */}
-                                    <div style={{
-                                        marginTop: '1.5rem',
-                                        padding: '1rem',
-                                        background: 'rgba(74, 158, 255, 0.05)',
-                                        borderRadius: '10px',
-                                        border: '1px solid rgba(74, 158, 255, 0.1)',
-                                        display: 'flex',
-                                        justifyContent: 'space-between',
-                                        alignItems: 'center'
-                                    }}>
-                                        <div>
-                                            <div style={{ fontSize: '0.75rem', color: '#8b9bb8', marginBottom: '0.25rem' }}>CURRENT LOCATION</div>
-                                            <div style={{ fontSize: '1rem', fontWeight: 600, color: '#e8edf4' }}>Basement - Room 0.1</div>
-                                        </div>
-                                        <div style={{
-                                            background: 'rgba(74, 158, 255, 0.1)',
-                                            padding: '0.5rem 1rem',
-                                            borderRadius: '6px',
-                                            fontSize: '0.75rem',
-                                            color: '#4a9eff',
-                                            fontFamily: '"Space Mono", monospace'
-                                        }}>
-                                            Synced Position
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Sidebar - simplified for this example */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                                <div style={{
-                                    background: 'rgba(26, 31, 58, 0.5)',
-                                    borderRadius: '16px',
-                                    padding: '1.5rem',
-                                    border: '1px solid rgba(74, 158, 255, 0.15)',
-                                    backdropFilter: 'blur(10px)',
-                                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
-                                }}>
-                                    <h2 style={{
-                                        margin: '0 0 1rem 0',
-                                        fontSize: '1.125rem',
-                                        fontWeight: 700,
-                                        color: '#e8edf4',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.5rem'
-                                    }}>
-                                        <FileText size={20} color="#4a9eff" />
-                                        Location Assets
-                                    </h2>
-                                    <p style={{ color: '#8b9bb8', fontSize: '0.875rem' }}>
-                                        Asset information and maintenance logs would appear here in the full version.
-                                    </p>
-                                </div>
-                            </div>
+                    <!-- Location Info -->
+                    <div class="location-info">
+                        <div>
+                            <div class="location-label">CURRENT LOCATION</div>
+                            <div class="location-name">Basement - Room 0.1</div>
+                        </div>
+                        <div class="sync-badge">
+                            Synced Position
                         </div>
                     </div>
                 </div>
-            );
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar fade-in-up" style="animation-delay: 0.2s;">
+                <div class="card">
+                    <h2 class="section-title">
+                        📄 Location Assets
+                    </h2>
+                    <div class="info-text">
+                        <strong>Marvin Elevate Windows</strong><br>
+                        Double-Hung, Low-E Glass<br>
+                        Last Service: 2024-08-15<br>
+                        <br>
+                        <strong>Philips LuxSpace Recessed</strong><br>
+                        LED, 3000K, Dimmable<br>
+                        Last Service: 2024-10-20<br>
+                        <br>
+                        <strong>White Oak Wide Plank</strong><br>
+                        Random Width, Natural Finish<br>
+                        <br>
+                        <strong>Sub-Zero Refrigerator</strong><br>
+                        Classic Series, Built-in<br>
+                        Last Service: 2024-09-12
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="section-title">
+                        🔧 Maintenance Log
+                    </h2>
+                    <div class="info-text">
+                        <strong>2024-12-15</strong> · John Martinez<br>
+                        Replaced HVAC filter in basement unit<br>
+                        <br>
+                        <strong>2024-11-03</strong> · Sarah Chen<br>
+                        Cold call from tenant - Room 0.1. Adjusted thermostat settings<br>
+                        <br>
+                        <strong>2024-10-20</strong> · Mike Thompson<br>
+                        LED bulbs replaced in common hallway
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentView = 'completed';
+        const sdkKey = 'sd5i4pbicc4c7iqmi8sqbcieb';
+
+        // Elements
+        const completedBtn = document.getElementById('completedBtn');
+        const xrayBtn = document.getElementById('xrayBtn');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const viewerContainer = document.getElementById('viewerContainer');
+        const matterportIframe = document.getElementById('matterportIframe');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const viewIndicator = document.getElementById('viewIndicator');
+
+        // URLs
+        const urls = {
+            completed: `https://my.matterport.com/show/?m=Df3Qr43FHgi&brand=0&dh=0&gt=0&hr=0&mls=2&applicationKey=${sdkKey}`,
+            xray: `https://my.matterport.com/show/?m=iCQ998wf5ui&brand=0&dh=0&gt=0&hr=0&mls=2&applicationKey=${sdkKey}`
         };
 
-        ReactDOM.render(<BuildingTwinApp />, document.getElementById('root'));
+        // Functions
+        function updateView(newView) {
+            currentView = newView;
+            
+            // Update buttons
+            if (newView === 'completed') {
+                completedBtn.classList.add('active');
+                xrayBtn.classList.remove('active');
+                viewerContainer.classList.remove('xray');
+                viewIndicator.classList.remove('xray');
+                viewIndicator.textContent = 'Completed Building';
+            } else {
+                completedBtn.classList.remove('active');
+                xrayBtn.classList.add('active');
+                viewerContainer.classList.add('xray');
+                viewIndicator.classList.add('xray');
+                viewIndicator.textContent = 'Infrastructure X-Ray';
+            }
+            
+            // Show loading
+            loadingOverlay.classList.remove('hidden');
+            
+            // Update iframe
+            matterportIframe.src = urls[newView];
+        }
+
+        function toggleView() {
+            const newView = currentView === 'completed' ? 'xray' : 'completed';
+            updateView(newView);
+        }
+
+        // Event listeners
+        completedBtn.addEventListener('click', () => updateView('completed'));
+        xrayBtn.addEventListener('click', () => updateView('xray'));
+        toggleBtn.addEventListener('click', toggleView);
+
+        // Hide loading on iframe load
+        matterportIframe.addEventListener('load', () => {
+            loadingOverlay.classList.add('hidden');
+        });
+
+        // Fallback: hide loading after 4 seconds
+        setTimeout(() => {
+            loadingOverlay.classList.add('hidden');
+        }, 4000);
     </script>
 </body>
 </html>
